@@ -14,9 +14,8 @@ BlockCompressorZSTD::BlockCompressorZSTD(const std::string& out_prefix, const st
 
     ZSTD_CCtx_setParameter(context, ZSTD_c_compressionLevel, ZSTD_defaultCLevel());
 
-    //Compression is not inplace, so we need to allocate out_buffer once for storing data
-    //Get maximum estimated (upper bound) encoded size
-    out_buffer.resize(ZSTD_compressBound(in_buffer.size()));
+    //Resize out buffer according to compressor upperbound
+    resize_out_buffer(ZSTD_compressBound(get_block_size()));
 }
 
 BlockCompressorZSTD::~BlockCompressorZSTD()

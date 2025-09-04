@@ -5,6 +5,14 @@ project(BlockCompressor)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 include(ExternalProject)
 include(FetchContent)
 
@@ -51,6 +59,7 @@ set_target_properties(zstd_lib PROPERTIES
 )
 add_dependencies(zstd_lib zstd_external)
 
+####### BlockCompressor #######
 
 # Build the ConfigurationLiterate library
 add_library(ConfigurationLiterate SHARED
@@ -66,14 +75,14 @@ add_dependencies(BlockCompressor ConfigurationLiterate)
 
 
 # Build the BlockDecompressor library 
-add_library(BlockDecompressor STATIC
+add_library(BlockDecompressor SHARED
     ${SRC_DIR}/BlockDecompressor.cpp
 )
 target_link_libraries(BlockDecompressor PRIVATE ConfigurationLiterate)
 add_dependencies(BlockDecompressor ConfigurationLiterate)
 
 
-####### ZSTD #######
+####### BlockCompressor & ZSTD #######
 
 # Build the BlockCompressorZSTD library
 add_library(BlockCompressorZSTD SHARED
@@ -83,7 +92,7 @@ target_link_libraries(BlockCompressorZSTD PUBLIC BlockCompressor zstd_lib)
 add_dependencies(BlockCompressorZSTD zstd_lib)
 
 # Build the BlockDecompressorZSTD library
-add_library(BlockDecompressorZSTD STATIC
+add_library(BlockDecompressorZSTD SHARED
     ${SRC_DIR}/zstd/BlockDecompressorZSTD.cpp
 )
 target_link_libraries(BlockDecompressorZSTD PUBLIC BlockDecompressor zstd_lib)

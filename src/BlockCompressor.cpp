@@ -16,8 +16,6 @@ void BlockCompressor::append_block(const std::uint8_t * const input, std::size_t
     //Add position to Elias-Fano encoder
     current_size += out_size;
     ef_pos.push_back(current_size);
-
-    std::cout << "compression size:" << out_size << std::endl;
     
     //Write bytes to output file
     m_out.write(reinterpret_cast<const char*>(out_buffer.data()), out_size * sizeof(std::uint8_t));
@@ -137,10 +135,15 @@ void BlockCompressor::compress_file(const std::string& in_path, std::size_t head
     std::ifstream in_file(in_path, std::ifstream::binary);
     
     in_file.seekg(0, std::ifstream::end);
-    std::uint64_t size = in_file.tellg() - (long)header_size;
-    
-    std::cout << config.get_nb_samples() << std::endl;
-    std::cout << config.get_bit_vectors_per_block() << std::endl;
+
+    if(in_file.tellg() == -1)
+        throw std::runtime_error("Unexpected file position");
+
+        
+    if(header_size > (std::size_t)in_file.tellg())
+        throw std::runtime_error("header size is greater than file size");
+
+    std::uint64_t size = (std::size_t)in_file.tellg() - header_size;
 
     write_header(in_file, header_size);
 
@@ -185,4 +188,19 @@ void BlockCompressor::write_header(std::ifstream& in_file, std::size_t header_si
     m_out.write(header, header_size);
 
     delete[] header;
+}
+
+bool BlockCompressor::is_closed() const
+{
+    return closed;
+}
+
+std::size_t BlockCompressor::get_block_size() const
+{
+    return in_buffer.size();
+}
+
+void BlockCompressor::resize_out_buffer(std::size_t size)
+{
+    out_buffer.resize(size);
 }
