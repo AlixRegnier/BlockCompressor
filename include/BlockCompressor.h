@@ -1,0 +1,76 @@
+#ifndef BLOCKCOMPRESSOR_H
+#define BLOCKCOMPRESSOR_H
+
+#include <cassert>
+
+//Configuration parser
+#include <ConfigurationLiterate.h>
+
+#include <fstream>
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+#include <filesystem>
+
+//Elias-Fano encoding
+#include <sdsl/bit_vectors.hpp>
+
+
+class BlockCompressor
+{
+    protected:
+        bool closed = false;
+        bool closing = false;
+
+        //Properties
+        ConfigurationLiterate config; //Configuration class { preset_level, bit_vectors_per_block, nb_samples }
+
+        //Buffers and IO variables
+        std::uint64_t current_size = 0;
+        std::vector<std::uint8_t> m_buffer;
+        std::vector<std::uint8_t> in_buffer;
+        std::vector<std::uint8_t> out_buffer;
+        std::size_t in_buffer_current_size = 0;
+        std::size_t bit_vectors_read = 0;
+        std::ofstream m_out;
+
+        //EF data
+        std::ofstream ef_out;
+        std::vector<std::uint64_t> ef_pos;
+
+    private:
+
+        //Compress buffer
+        virtual std::size_t compress_buffer(const std::uint8_t * const input, std::uint8_t * const output, std::size_t in_size, std::size_t out_size) = 0;
+
+        //Write out <n> bit_vectors filled with zeroes
+        void fill_zero_buffers(std::uint64_t n);
+
+        //Write out Elias-Fano representation of blocks starting position
+        void write_elias_fano();
+        
+        //Writes header from input file
+        void write_header(std::ifstream& in_file, std::size_t header_size);
+    public:
+        BlockCompressor(const std::string& out_prefix, const std::string& config_path);
+        ~BlockCompressor();
+
+        //Append bit vector to block buffer
+        void append_bit_vector(const std::uint8_t * const bit_vector);
+
+        //Write out current block
+        void append_block(const std::uint8_t * const input, std::size_t in_size);
+
+        //Close file descriptors, flush last block
+        void close();
+
+        //Compress hash:bf:bin kmtricks matrix
+        void compress_file(const std::string& in_path, std::size_t skip_header = 0);
+
+        void process_row();
+
+        //Add new block (previous block will be filled and written before, block is expecte
+        void process_block();
+};
+
+#endif
