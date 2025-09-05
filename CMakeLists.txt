@@ -47,7 +47,7 @@ target_sources(block_compressor PRIVATE
 )
 target_link_libraries(block_compressor PRIVATE bc_build_type_flags)
 target_include_directories(block_compressor PUBLIC
-    $<BUILD_INTERFACE:${INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${BC_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
 target_link_libraries(block_compressor PRIVATE sdsl-lite zstd)
