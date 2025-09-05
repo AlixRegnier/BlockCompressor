@@ -26,7 +26,7 @@ if (NOT FORCE_BUILD_ZSTD AND NOT FORCE_BUILD_ALL)
 
 endif()
 
-set(ZSTD_DIR ${EXT_INSTALL_DIR}/zstd)
+set(ZSTD_DIR ${PROJECT_BINARY_DIR}/bc_ext_install/zstd)
 
 include(ExternalProject)
 
