@@ -7,7 +7,7 @@ std::size_t BlockCompressorZSTD::compress_buffer(const std::uint8_t * const inpu
 }
 
 //Init ZSTD filters and resize output buffer according to estimated compressed block size
-BlockCompressorZSTD::BlockCompressorZSTD(const std::string& out_prefix, const std::string& config_path) : BlockCompressor(out_prefix, config_path)
+BlockCompressorZSTD::BlockCompressorZSTD(const std::string& output, const std::string& output_ef, const std::string& config_path) : BlockCompressor(output, output_ef, config_path)
 {
     //Configure options and filters (compression level) 
     context = ZSTD_createCCtx();

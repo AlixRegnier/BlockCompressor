@@ -1,6 +1,7 @@
 #include <BlockDecompressorZSTD.h>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 
 int main(int argc, char ** argv)
 {
@@ -12,8 +13,12 @@ int main(int argc, char ** argv)
 
     char* ptrnull;
     
+    std::string config_path = argv[1];
+    std::string in_path = argv[2];
+    std::string ef_path = argv[3];
     std::size_t header_size = (std::size_t)std::strtoull(argv[4], &ptrnull, 10);
+    std::string output = argv[5];
 
-    //Initialize decompressor and decompressor each blocks to <output>
-    BlockDecompressorZSTD(argv[1], argv[2], argv[3], header_size).decompress_all(argv[5]);
+    //Initialize decompressor, copies header and decompress each blocks to <output>
+    BlockDecompressorZSTD(config_path, in_path, ef_path, header_size).decompress_all(output);
 }

@@ -29,7 +29,7 @@ void BlockCompressor::append_block(const std::uint8_t * const input, std::size_t
     }
 }
 
-BlockCompressor::BlockCompressor(const std::string& out_prefix, const std::string& config_path)
+BlockCompressor::BlockCompressor(const std::string& output, const std::string& output_ef, const std::string& config_path)
 {
     ef_pos.push_back(0);
 
@@ -38,11 +38,8 @@ BlockCompressor::BlockCompressor(const std::string& out_prefix, const std::strin
     //Configure buffer size according to parameters
     m_buffer.resize((config.get_nb_samples() + 7) / 8);
 
-    std::string output_path = out_prefix;
-    std::string ef_path = out_prefix + "_ef";
-
-    m_out.open(output_path, std::ofstream::binary);
-    ef_out.open(ef_path, std::ofstream::binary);
+    m_out.open(output, std::ofstream::binary);
+    ef_out.open(output_ef, std::ofstream::binary);
 
     in_buffer.resize(m_buffer.size() * config.get_bit_vectors_per_block());
 }
@@ -89,7 +86,7 @@ void BlockCompressor::write_elias_fano()
     sdsl::serialize(ef, ef_out);
 }
 
-void BlockCompressor::fill_zero_buffers(std::uint64_t n)
+void BlockCompressor::append_zero_buffers(std::uint64_t n)
 {
     if(closed)
         return;
