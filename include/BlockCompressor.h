@@ -45,7 +45,7 @@ class BlockCompressor
         std::vector<std::uint64_t> ef_pos;
 
         //Compress buffer
-        virtual std::size_t compress_buffer(const std::uint8_t * const input, std::uint8_t * const output, std::size_t in_size, std::size_t out_size) = 0;
+        virtual std::size_t compress_buffer(const std::uint8_t * input, std::uint8_t * output, std::size_t in_size, std::size_t out_size) = 0;
 
         //Write out Elias-Fano representation of blocks starting position
         void write_elias_fano();
@@ -54,7 +54,7 @@ class BlockCompressor
         void write_header(std::ifstream& in_file, std::size_t header_size);
 
     public:
-        BlockCompressor(const std::string& out_prefix, const std::string& config_path);
+        BlockCompressor(const std::string& output, const std::string& output_ef, const std::string& config_path);
         ~BlockCompressor();
 
         //Append bit vector to block buffer
@@ -64,19 +64,17 @@ class BlockCompressor
         void append_block(const std::uint8_t * const input, std::size_t in_size);
 
         //Write out <n> bit_vectors filled with zeroes
-        void fill_zero_buffers(std::uint64_t n);
+        void append_zero_buffers(std::uint64_t n);
 
         //Close file descriptors, flush last block
         void close();
 
         //Compress hash:bf:bin kmtricks matrix
-        void compress_file(const std::string& in_path, std::size_t skip_header = 0);
+        void compress_file(const std::string& in_path, std::size_t header_size = 0);
+        
+        std::size_t get_block_size() const;
 
         bool is_closed() const;
-
-        void reset();
-
-        std::size_t get_block_size() const;
 };
 
 #endif
