@@ -24,7 +24,6 @@ class BlockCompressor
     private:
     
         bool closed = false;
-        bool closing = false;
         
         std::vector<std::uint8_t> m_buffer;
         std::vector<std::uint8_t> in_buffer;

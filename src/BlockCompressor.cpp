@@ -21,12 +21,12 @@ void BlockCompressor::append_block(const std::uint8_t * const input, std::size_t
     m_out.write(reinterpret_cast<const char*>(out_buffer.data()), out_size * sizeof(std::uint8_t));
     m_out.flush();
 
+    //Tell that internal buffer has been flushed
+    in_buffer_current_size = 0;
+
     //If block isn't full, it means that it was the last block
-    if(!closing && in_size != config.get_bit_vectors_per_block() * m_buffer.size())
-    {
-        closing = true;
+    if(in_size != config.get_bit_vectors_per_block() * m_buffer.size())
         close();
-    }
 }
 
 BlockCompressor::BlockCompressor(const std::string& output, const std::string& output_ef, const std::string& config_path)
@@ -53,14 +53,10 @@ void BlockCompressor::close()
 {
     if(!closed)
     {
-        if(!closing)
-        {
-            //Write a smaller block if buffer isn't empty
-            if(in_buffer_current_size != 0)
-                append_block(in_buffer.data(), in_buffer_current_size);
-        }
-
-        if(closing)
+        //Write a smaller block if buffer isn't empty
+        if(in_buffer_current_size != 0)
+            append_block(in_buffer.data(), in_buffer_current_size);
+        else
         {
             //Elias-Fano encoding
             write_elias_fano();
