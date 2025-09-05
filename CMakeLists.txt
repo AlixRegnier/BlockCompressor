@@ -50,5 +50,5 @@ target_include_directories(block_compressor PUBLIC
     $<BUILD_INTERFACE:${BC_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(block_compressor PRIVATE sdsl-lite zstd)
-add_dependencies(block_compressor zstd)
+target_link_libraries(block_compressor PRIVATE sdsl-lite zstd_ext)
+add_dependencies(block_compressor zstd_ext)
