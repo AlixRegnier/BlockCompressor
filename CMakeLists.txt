@@ -38,7 +38,7 @@ set(BC_SRC_DIR ${PROJECT_SOURCE_DIR}/src)
 set(BC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 add_library(block_compressor)
-target_sources(block_compressor PRIVATE 
+target_sources(block_compressor PRIVATE
     ${BC_SRC_DIR}/BlockCompressor.cpp
     ${BC_SRC_DIR}/ConfigurationLiterate.cpp
     ${BC_SRC_DIR}/BlockDecompressor.cpp
@@ -52,3 +52,14 @@ target_include_directories(block_compressor PUBLIC
 )
 target_link_libraries(block_compressor PRIVATE sdsl-lite zstd_ext)
 add_dependencies(block_compressor zstd_ext)
+
+#Testing with main files
+if(BC_BUILD_CLI_BIN)
+  add_executable(block_compressor_bin ${BC_SRC_DIR}/zstd/mainBlockCompressorZSTD.cpp)
+  target_link_libraries(block_compressor_bin PRIVATE bc_build_type_flags sdsl-lite zstd_ext block_compressor)
+  add_dependencies(block_compressor_bin block_compressor)
+
+  add_executable(block_decompressor_bin ${BC_SRC_DIR}/zstd/mainBlockDecompressorZSTD.cpp)
+  target_link_libraries(block_decompressor_bin PRIVATE bc_build_type_flags sdsl-lite zstd_ext block_compressor)
+  add_dependencies(block_decompressor_bin block_compressor)
+endif()

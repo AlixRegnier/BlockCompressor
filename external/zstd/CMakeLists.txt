@@ -20,7 +20,7 @@ if (NOT FORCE_BUILD_ZSTD AND NOT FORCE_BUILD_ALL)
     message(STATUS "Found ZSTD (found suitable version \"${zstd_VERSION}\", minimum required is \"${ZSTD_MIN_REQUIRED_VERSION}\")")
     return()
   endif()
-    
+
 
   message(STATUS "ZSTD not found: use bundled version.")
 
@@ -50,12 +50,15 @@ ExternalProject_Add(ZSTD-external
         -DZSTD_BUILD_TESTS=OFF
 )
 
+set(ZSTD_LIB "${ZSTD_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}zstd${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
 if (NOT ZSTD_HEADER_ONLY)
   set_target_properties(
     zstd_ext PROPERTIES
-    IMPORTED_LOCATION "${ZSTD_DIR}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}zstd${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    IMPORTED_LOCATION "${ZSTD_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}zstd${CMAKE_SHARED_LIBRARY_SUFFIX}"
     INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_DIR}/include"
   )
+  target_link_libraries(zstd_ext INTERFACE "${ZSTD_LIB}")
 else()
   target_compile_definitions(zstd_ext INTERFACE ZSTD_HEADER_ONLY)
 endif()
