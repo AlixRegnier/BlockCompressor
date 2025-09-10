@@ -49,12 +49,16 @@ class BlockCompressor
         //Write out Elias-Fano representation of blocks starting position
         void write_elias_fano();
         
+        
+        public:
+        BlockCompressor(const std::string& output, const std::string& output_ef, const std::string& config_path);
+        ~BlockCompressor();
+        
         //Writes header from input file
         void write_header(std::ifstream& in_file, std::size_t header_size);
 
-    public:
-        BlockCompressor(const std::string& output, const std::string& output_ef, const std::string& config_path);
-        ~BlockCompressor();
+        //Writes header from user input
+        void write_header(const char * const header, std::size_t header_size);
 
         //Append bit vector to block buffer
         void append_bit_vector(const std::uint8_t * const bit_vector);

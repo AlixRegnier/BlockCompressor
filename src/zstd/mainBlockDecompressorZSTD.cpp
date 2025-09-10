@@ -11,12 +11,10 @@ int main(int argc, char ** argv)
         return 1;
     }   
 
-    char* ptrnull;
-    
     std::string config_path = argv[1];
     std::string in_path = argv[2];
     std::string ef_path = argv[3];
-    std::size_t header_size = (std::size_t)std::strtoull(argv[4], &ptrnull, 10);
+    unsigned header_size = (unsigned)atoll(argv[4]);
     std::string output = argv[5];
 
     //Initialize decompressor, copies header and decompress each blocks to <output>

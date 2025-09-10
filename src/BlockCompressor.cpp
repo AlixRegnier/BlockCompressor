@@ -183,6 +183,11 @@ void BlockCompressor::write_header(std::ifstream& in_file, std::size_t header_si
     delete[] header;
 }
 
+void BlockCompressor::write_header(const char * const header, std::size_t header_size)
+{
+    m_out.write(header, header_size);
+}
+
 bool BlockCompressor::is_closed() const
 {
     return closed;

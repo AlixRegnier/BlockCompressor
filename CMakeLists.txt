@@ -54,7 +54,7 @@ target_link_libraries(block_compressor PRIVATE sdsl-lite zstd_ext)
 add_dependencies(block_compressor zstd_ext)
 
 #Testing with main files
-if(BC_BUILD_CLI_BIN)
+if(BC_BUILD_MAIN)
   add_executable(block_compressor_bin ${BC_SRC_DIR}/zstd/mainBlockCompressorZSTD.cpp)
   target_link_libraries(block_compressor_bin PRIVATE bc_build_type_flags sdsl-lite zstd_ext block_compressor)
   add_dependencies(block_compressor_bin block_compressor)
