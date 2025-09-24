@@ -12,7 +12,7 @@ BlockCompressorZSTD::BlockCompressorZSTD(const std::string& output, const std::s
     //Configure options and filters (compression level) 
     context = ZSTD_createCCtx();
 
-    ZSTD_CCtx_setParameter(context, ZSTD_c_compressionLevel, ZSTD_defaultCLevel());
+    ZSTD_CCtx_setParameter(context, ZSTD_c_compressionLevel, config.get_preset_level());
 
     //Resize out buffer according to compressor upperbound
     resize_out_buffer(ZSTD_compressBound(get_block_size()));

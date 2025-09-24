@@ -20,6 +20,9 @@ class BlockCompressor
 {
     protected:
         void resize_out_buffer(std::size_t size);
+
+        //Properties
+        ConfigurationLiterate config; //Configuration class { preset_level, bit_vectors_per_block, nb_samples }
         
     private:
     
@@ -29,9 +32,6 @@ class BlockCompressor
         std::vector<std::uint8_t> in_buffer;
         std::vector<std::uint8_t> out_buffer;
         
-        //Properties
-        ConfigurationLiterate config; //Configuration class { preset_level, bit_vectors_per_block, nb_samples }
-
         //Buffers and IO variables
         std::uint64_t current_size = 0;
 
