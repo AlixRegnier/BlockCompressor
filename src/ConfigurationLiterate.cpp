@@ -62,9 +62,6 @@ void ConfigurationLiterate::assert_valid_config() const
     if(nb_samples == 0)
         throw std::invalid_argument("Invalid number of input samples.");
 
-    if(preset_level > 9)
-        throw std::invalid_argument("Preset compression level shall be in [0;9]");
-
     if(bit_vectors_per_block == 0)
         throw std::invalid_argument("The number of bit_vectors per block shall be at least 1.");
 }
