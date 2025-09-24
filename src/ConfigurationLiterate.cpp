@@ -92,9 +92,6 @@ void ConfigurationLiterate::set_bit_vectors_per_block(std::size_t bit_vectors_pe
 
 void ConfigurationLiterate::set_preset_level(std::uint8_t preset_level) 
 { 
-    if(preset_level > 9)
-        throw std::invalid_argument("preset_level can't be greater than 9");
-
     this->preset_level = preset_level; 
 }
 
