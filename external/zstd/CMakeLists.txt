@@ -1,7 +1,7 @@
 include(ExternalProject)
+include(GNUInstallDirs)
 
 add_library(zstd_ext INTERFACE)
-
 option(FORCE_BUILD_ZSTD "Always build, instead of using the system version." OFF)
 option(FORCE_STATIC_ZSTD "Force building static ZSTD library." OFF)
 
@@ -50,12 +50,12 @@ ExternalProject_Add(ZSTD-external
         -DZSTD_BUILD_TESTS=OFF
 )
 
-set(ZSTD_LIB "${ZSTD_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}zstd${CMAKE_SHARED_LIBRARY_SUFFIX}")
+set(ZSTD_LIB "${ZSTD_DIR}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}zstd${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 if (NOT ZSTD_HEADER_ONLY)
   set_target_properties(
     zstd_ext PROPERTIES
-    IMPORTED_LOCATION "${ZSTD_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}zstd${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    IMPORTED_LOCATION ${ZSTD_LIB}
     INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_DIR}/include"
   )
   target_link_libraries(zstd_ext INTERFACE "${ZSTD_LIB}")
