@@ -31,6 +31,7 @@ target_compile_options(bc_build_type_flags INTERFACE
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/include/zstd
+    ${PROJECT_SOURCE_DIR}/include/lz4
     ${PROJECT_BINARY_DIR}/sdsl/include
 )
 
@@ -44,17 +45,20 @@ target_sources(block_compressor PRIVATE
     ${BC_SRC_DIR}/BlockDecompressor.cpp
     ${BC_SRC_DIR}/zstd/BlockCompressorZSTD.cpp
     ${BC_SRC_DIR}/zstd/BlockDecompressorZSTD.cpp
+    ${BC_SRC_DIR}/lz4/BlockCompressorLZ4.cpp
+    ${BC_SRC_DIR}/lz4/BlockDecompressorLZ4.cpp
 )
 target_link_libraries(block_compressor PRIVATE bc_build_type_flags)
 target_include_directories(block_compressor PUBLIC
     $<BUILD_INTERFACE:${BC_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(block_compressor PRIVATE sdsl-lite zstd_ext)
-add_dependencies(block_compressor zstd_ext)
+target_link_libraries(block_compressor PRIVATE sdsl-lite zstd_ext lz4_ext)
+add_dependencies(block_compressor zstd_ext lz4_ext)
 
 #Testing with main files
 if(BC_BUILD_MAIN)
+  #ZSTD
   add_executable(block_compressor_bin ${BC_SRC_DIR}/zstd/mainBlockCompressorZSTD.cpp)
   target_link_libraries(block_compressor_bin PRIVATE bc_build_type_flags sdsl-lite zstd_ext block_compressor)
   add_dependencies(block_compressor_bin block_compressor)
@@ -62,4 +66,13 @@ if(BC_BUILD_MAIN)
   add_executable(block_decompressor_bin ${BC_SRC_DIR}/zstd/mainBlockDecompressorZSTD.cpp)
   target_link_libraries(block_decompressor_bin PRIVATE bc_build_type_flags sdsl-lite zstd_ext block_compressor)
   add_dependencies(block_decompressor_bin block_compressor)
+
+  #LZ4
+  add_executable(block_compressor_lz4_bin ${BC_SRC_DIR}/lz4/mainBlockCompressorLZ4.cpp)
+  target_link_libraries(block_compressor_lz4_bin PRIVATE bc_build_type_flags sdsl-lite lz4_ext block_compressor)
+  add_dependencies(block_compressor_lz4_bin block_compressor)
+
+  add_executable(block_decompressor_lz4_bin ${BC_SRC_DIR}/lz4/mainBlockDecompressorLZ4.cpp)
+  target_link_libraries(block_decompressor_lz4_bin PRIVATE bc_build_type_flags sdsl-lite lz4_ext block_compressor)
+  add_dependencies(block_decompressor_lz4_bin block_compressor)
 endif()
