@@ -66,10 +66,6 @@ void ConfigurationLiterate::assert_valid_config() const
         throw std::invalid_argument("The number of bit_vectors per block shall be at least 1.");
 }
 
-std::size_t ConfigurationLiterate::get_nb_samples() const { return nb_samples; }
-std::size_t ConfigurationLiterate::get_bit_vectors_per_block() const { return bit_vectors_per_block; }
-std::uint8_t ConfigurationLiterate::get_preset_level() const { return preset_level; }
-
 void ConfigurationLiterate::set_nb_samples(std::size_t nb_samples) 
 { 
     if(nb_samples == 0) 
