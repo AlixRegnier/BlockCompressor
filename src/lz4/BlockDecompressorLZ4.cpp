@@ -11,5 +11,5 @@ BlockDecompressorLZ4::BlockDecompressorLZ4(const ConfigurationLiterate& config, 
 
 std::size_t BlockDecompressorLZ4::decompress_buffer(std::size_t in_size)
 {
-    return LZ4_decompress_safe(reinterpret_cast<const char*>(in_buffer.data()), reinterpret_cast<char*>(out_buffer.data()), in_size, out_buffer.size());
+    return LZ4_decompress_safe(in_buffer, reinterpret_cast<char*>(out_buffer.data()), in_size, out_buffer.size());
 }
