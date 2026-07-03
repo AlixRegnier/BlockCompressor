@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <sstream>
 
 class ConfigurationLiterate
 {
