@@ -9,15 +9,6 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-include(cmake/avx.cmake)
-check_for_avx2()
-
-if(NOT HAS_AVX2)
-    message(FATAL_ERROR "AVX2 support is required to compile this project.")
-else()
-    message(STATUS "AVX2 support detected.")
-endif()
-
 add_subdirectory(external)
 
 add_library(bc_build_type_flags INTERFACE)
