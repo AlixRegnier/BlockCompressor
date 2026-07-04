@@ -1,7 +1,6 @@
 #ifndef BLOCKDECOMPRESSOR_H
 #define BLOCKDECOMPRESSOR_H
 
-#include <cassert>
 #include <ConfigurationLiterate.h>
 #include <fstream>
 #include <fcntl.h>

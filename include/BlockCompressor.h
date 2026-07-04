@@ -1,8 +1,6 @@
 #ifndef BLOCKCOMPRESSOR_H
 #define BLOCKCOMPRESSOR_H
 
-#include <cassert>
-
 //Configuration parser
 #include <ConfigurationLiterate.h>
 

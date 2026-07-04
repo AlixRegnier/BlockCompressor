@@ -1,7 +1,6 @@
 #ifndef CONFIGURATELITERATE_H
 #define CONFIGURATELITERATE_H
 
-#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <string>
