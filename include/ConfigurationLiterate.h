@@ -21,16 +21,19 @@ class ConfigurationLiterate
         inline std::size_t get_nb_samples() const { return nb_samples; }
         inline std::size_t get_bit_vectors_per_block() const { return bit_vectors_per_block; }
         inline std::uint8_t get_preset_level() const { return preset_level; }
+        inline std::size_t get_bits_per_element() const { return bits_per_element; }
 
         void set_nb_samples(std::size_t nb_samples);
         void set_bit_vectors_per_block(std::size_t bit_vectors_per_block);
         void set_preset_level(std::uint8_t preset_level);
-        
+        void set_bits_per_element(std::size_t bits_per_element);
+
     private:
         //Default values are invalid for ensuring the use of a further proper configuration
         std::size_t nb_samples = 0;
         std::size_t bit_vectors_per_block = 0;
         std::uint8_t preset_level = 10;
+        std::size_t bits_per_element = 1;
         std::string filename;
 
         //Modify string <s> in lower case
