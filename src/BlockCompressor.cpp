@@ -36,7 +36,7 @@ BlockCompressor::BlockCompressor(const std::string& output, const std::string& o
     config.load(config_path);
 
     //Configure buffer size according to parameters
-    m_buffer.resize((config.get_nb_samples() + 7) / 8);
+    m_buffer.resize((config.get_nb_samples() * config.get_bits_per_element() + 7) / 8);
 
     m_out.open(output, std::ofstream::binary);
     ef_out.open(output_ef, std::ofstream::binary);

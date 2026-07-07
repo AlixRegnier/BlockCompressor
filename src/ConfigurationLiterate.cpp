@@ -55,6 +55,7 @@ void ConfigurationLiterate::write() const
     config << "samples = " << nb_samples << "\n";
     config << "bitvectorsperblock = " << bit_vectors_per_block << "\n";
     config << "preset = " << preset_level << "\n";
+    config << "bitsperelement = " << bits_per_element << "\n";
 }
 
 void ConfigurationLiterate::assert_valid_config() const
@@ -64,6 +65,9 @@ void ConfigurationLiterate::assert_valid_config() const
 
     if(bit_vectors_per_block == 0)
         throw std::invalid_argument("The number of bit_vectors per block shall be at least 1.");
+
+    if(bits_per_element == 0)
+        throw std::invalid_argument("bits_per_element shall be at least 1.");
 }
 
 void ConfigurationLiterate::set_nb_samples(std::size_t nb_samples) 
@@ -83,9 +87,17 @@ void ConfigurationLiterate::set_bit_vectors_per_block(std::size_t bit_vectors_pe
     this->bit_vectors_per_block = bit_vectors_per_block; 
 }
 
-void ConfigurationLiterate::set_preset_level(std::uint8_t preset_level) 
-{ 
-    this->preset_level = preset_level; 
+void ConfigurationLiterate::set_preset_level(std::uint8_t preset_level)
+{
+    this->preset_level = preset_level;
+}
+
+void ConfigurationLiterate::set_bits_per_element(std::size_t bits_per_element)
+{
+    if(bits_per_element == 0)
+        throw std::invalid_argument("bits_per_element can't be equal to 0");
+
+    this->bits_per_element = bits_per_element;
 }
 
 //Modify string 's' in lower case
@@ -110,6 +122,10 @@ void ConfigurationLiterate::set_property(const std::string& property, std::size_
     else if(property == "preset")
     {
         set_preset_level(value);
+    }
+    else if(property == "bitsperelement")
+    {
+        set_bits_per_element(value);
     }
     else
     {
