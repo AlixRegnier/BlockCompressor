@@ -16,7 +16,7 @@ BlockDecompressor::BlockDecompressor(const ConfigurationLiterate& config, const 
     posix_madvise(this->matrix, this->file_size, POSIX_MADV_SEQUENTIAL);
 
     //Initialize variables according to configurations
-    bit_vector_size = ((config.get_nb_samples() + 7) / 8);
+    bit_vector_size = ((config.get_nb_samples() * config.get_bits_per_element() + 7) / 8);
     BLOCK_DECODED_SIZE = bit_vector_size * config.get_bit_vectors_per_block();
 
     out_buffer.resize(BLOCK_DECODED_SIZE);
