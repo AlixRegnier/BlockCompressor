@@ -16,7 +16,7 @@ class BlockCompressorZSTD : public BlockCompressor
         std::size_t compress_buffer(const std::uint8_t * input, std::uint8_t * output, std::size_t in_size, std::size_t out_size) override;
         
     public:
-        BlockCompressorZSTD(const std::string& output, const std::string& output_ef, const std::string& config_path);
+        BlockCompressorZSTD(const std::string& output, const std::string& output_ef, const std::string& config_path, unsigned wlog=0);
         ~BlockCompressorZSTD();
 };
 
