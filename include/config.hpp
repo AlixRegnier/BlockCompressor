@@ -15,8 +15,8 @@ namespace block_compressor
         std::uint64_t row_size;
         std::uint64_t block_size;
 
-        std::uint64_t dirty_rows_per_block;
-        std::uint64_t dirty_block_size;
+        std::uint64_t targeted_rows_per_block;
+        std::uint64_t targeted_block_size;
 
     public:
         const std::uint64_t default_block_size = 1 << 16; //64 kB
@@ -26,52 +26,74 @@ namespace block_compressor
         explicit Config();
         virtual ~Config() = default;
 
-        virtual void sync_parameters();
+        virtual inline void import_config(const std::string& config_path) { import_config(ConfigIO(config_path)); }
+        virtual void import_config(const ConfigIO& config_io);
+
+        virtual void export_config(const std::string& config_path) const;
+        virtual void export_config(const std::string& config_path, ConfigIO& config_io) const;
 
         virtual inline std::size_t get_bits_per_element() const { return bits_per_element; }
         virtual inline std::size_t get_elements_per_row() const { return elements_per_row; }
         virtual inline std::size_t get_rows_per_block() const { return rows_per_block; }
         virtual inline std::size_t get_row_size() const { return row_size; }
         virtual inline std::size_t get_block_size() const { return block_size; }
+        virtual inline std::size_t get_targeted_block_size() const { return targeted_block_size; }
 
         virtual void set_bits_per_element(std::size_t v, bool sync = true);
         virtual void set_elements_per_row(std::size_t v, bool sync = true);
-        virtual void set_rows_per_block(std::size_t v, bool sync = true);
+        virtual void target_rows_per_block(std::size_t v, bool sync = true);
         virtual void target_block_size(std::size_t v, bool sync = true);
+
+        virtual void sync_parameters();
     };
 
-    Config::Config(const ConfigIO& config_io)
+    Config::Config(){}
+
+    inline void Config::import_config(const ConfigIO& config_io)
     {
         set_elements_per_row(config_io.get<std::uint64_t>("elements_per_row"), false);
         set_bits_per_element(config_io.get<std::uint64_t>("bits_per_element", default_bits_per_element), false);
-        target_block_size(config_io.get<std::uint64_t>("target_block_size"), false);
-        set_rows_per_block(config_io.get<std::uint64_t>("rows_per_block"), false);
+        
+        targeted_block_size = config_io.get<std::uint64_t>("target_block_size");
+        targeted_rows_per_block = config_io.get<std::uint64_t>("rows_per_block");
 
         sync_parameters();
     }
 
-    Config::Config(){}
+    inline void Config::export_config(const std::string& config_path) const
+    {
+        ConfigIO c;
+        export_config(config_path, c);
+    }
+
+    inline void Config::export_config(const std::string& config_path, ConfigIO& config_io) const
+    {
+        config_io.set<std::uint64_t>("bits_per_element", bits_per_element);
+        config_io.set<std::uint64_t>("elements_per_row", elements_per_row);
+        config_io.set<std::uint64_t>("targeted_block_size", targeted_block_size);
+        config_io.set<std::uint64_t>("rows_per_block", targeted_rows_per_block);
+
+        config_io.write(config_path);
+    }
 
     inline void Config::sync_parameters()
     {
         row_size = bits_to_bytes(elements_per_row * bits_per_element);
 
-        if(dirty_block_size != 0 && dirty_rows_per_block != 0)
+        //If both targets need to be tuned
+        if((bool)targeted_block_size == (bool)targeted_rows_per_block)
             throw block_compressor_error("Config", "sync_parameters", "Cannot tune both the number of rows per block and the block size");
 
-        if(dirty_rows_per_block != 0)
+        if(targeted_rows_per_block != 0)
         {
-            rows_per_block = dirty_rows_per_block;
+            rows_per_block = targeted_rows_per_block;
             block_size = row_size * rows_per_block;
         }
-        else //if(dirty_block_size != 0)
+        else
         {
-            block_size = std::max(row_size, nearest_multiple(dirty_block_size, row_size));
+            block_size = std::max(row_size, nearest_multiple(targeted_block_size, row_size));
             rows_per_block = block_size / row_size;
         }
-
-        //Reset dirty values
-        dirty_rows_per_block = dirty_block_size = 0;
     }
 
     inline void Config::set_bits_per_element(std::size_t bits_per_element, bool sync)
@@ -96,24 +118,23 @@ namespace block_compressor
             sync_parameters();
     }
 
-    inline void Config::set_rows_per_block(std::size_t rows_per_block, bool sync)
+    inline void Config::target_rows_per_block(std::size_t rows_per_block, bool sync)
     { 
         if(rows_per_block == 0)
             throw block_compressor_error("Config", "set_rows_per_block", "Attempted to set the number of rows per block to 0");
 
-        dirty_rows_per_block = static_cast<std::uint64_t>(rows_per_block);
+        targeted_rows_per_block = static_cast<std::uint64_t>(rows_per_block);
 
         if(sync)
             sync_parameters();
     }
 
-    inline void Config::target_block_size(std::size_t target_block_size, bool sync)
+    inline void Config::target_block_size(std::size_t targeted_block_size, bool sync)
     { 
-        if(target_block_size == 0)
+        if(targeted_block_size == 0)
             throw block_compressor_error("Config", "target_block_size", "Attempted to set the block size to 0");
 
-        dirty_block_size = std::max(row_size, nearest_multiple(target_block_size, row_size));
-        dirty_rows_per_block = block_size / row_size;
+        this->targeted_block_size = std::max(row_size, nearest_multiple(targeted_block_size, row_size));
 
         if(sync)
             sync_parameters();

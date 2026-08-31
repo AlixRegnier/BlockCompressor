@@ -23,9 +23,9 @@ namespace block_compressor
         std::unordered_map<std::string, Value> properties;
 
     public:
-        explicit ConfigIO() = default;
+        explicit ConfigIO() {};
         explicit ConfigIO(const std::string& path);
-
+        
         virtual void read(const std::string& path);
         virtual void write(const std::string& path) const;
 
@@ -41,9 +41,9 @@ namespace block_compressor
         }
 
         template <class T>
-        inline void set(std::string& property, const T& value)
+        inline void set(const std::string& property, const T& value)
         {
-            properties["property"] = value;
+            properties[property] = value;
         }
     };
 
