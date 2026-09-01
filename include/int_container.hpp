@@ -14,13 +14,16 @@ namespace block_compressor
         IntContainer() = default;
         virtual ~IntContainer() = default;
 
-        inline virtual void add_integer(T x) { ++count; };
+        inline virtual void push_back(T x) { ++count; };
         
         inline std::size_t size() const { return count; }
         
-        virtual void deserialize(std::string& path) = 0; 
-        virtual void serialize(std::string& path) = 0;
-        
+        void deserialize(const std::string& path);
+        virtual void deserialize(const char* data) = 0;
+    
+        void serialize(const std::string& path);
+        virtual void serialize(const char* data) const = 0;    
+
         virtual T operator[](std::size_t idx) const = 0;
     };
 }

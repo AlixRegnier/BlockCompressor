@@ -71,7 +71,7 @@ namespace block_compressor
         this->compressed_block_size = compressor.compression_upper_bound(block_size);
         this->compressed_block = allocate<char>(compressed_block_size);
 
-        this->int_container->add_integer(0);
+        this->int_container->push_back(0);
     }
 
     BlockCompressor::BlockCompressor(std::ostream& output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container)
@@ -82,7 +82,6 @@ namespace block_compressor
 
     BlockCompressor::~BlockCompressor()
     {
-        //TODO: close + write block positions
         close();
     }
 
@@ -133,7 +132,7 @@ namespace block_compressor
             std::free(block);
             std::free(compressed_block);
 
-            //TODO: write out block positions
+            int_container->serialize("TODO: output");
         }
     }
 
@@ -148,7 +147,7 @@ namespace block_compressor
         std::size_t compressed_size = compressor->compress_block(data, compressed_block, size, compressed_block_size);
         write_data(compressed_block, compressed_size);
 
-        int_container->add_integer(compressed_size + total_compressed_size);
+        int_container->push_back(compressed_size + total_compressed_size);
         total_compressed_size += compressed_size;
     }
 
