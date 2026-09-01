@@ -23,7 +23,7 @@ namespace block_compressor
         std::unordered_map<std::string, Value> properties;
 
     public:
-        explicit ConfigIO() {};
+        ConfigIO() = default;
         explicit ConfigIO(const std::string& path);
         
         virtual void read(const std::string& path);
