@@ -1,51 +1,57 @@
 #ifndef BLOCK_COMPRESSOR_BLOCK_COMPRESSOR_H
 #define BLOCK_COMPRESSOR_BLOCK_COMPRESSOR_H
 
-#include <config.hpp>
 #include <cstring>
+#include <memory>
+#include <vector>
+
+#include <config.hpp>
 #include <compressor.hpp>
 #include <utils.hpp>
+#include <stream.hpp>
+#include <int_container.hpp>
 
 namespace block_compressor
 {
-    class block_compressor
+    class BlockCompressor
     {
     private:
         Compressor* compressor;
+        IntContainer<std::uint64_t>* int_container;
 
         char* block;
         char* compressed_block;
 
+        OutputStream output;
+
+        
         std::size_t block_size;
         std::size_t block_current_size;
         std::size_t compressed_block_size;
-
+        std::size_t total_compressed_size = 0;
+        
         bool closed = false;
 
-        //Buffers and IO variables
-        std::size_t total_size = 0;
-
-        std::shared_ptr<std::istream> input_stream_ptr;
-        std::shared_ptr<std::ostream> output_stream_ptr;
-
-        std::vector<std::uint64_t> block_pos;
+        BlockCompressor(OutputStream output, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container);
 
         void compress_and_flush_block(const char * block, std::size_t size);
     public:
-        block_compressor(std::shared_ptr<std::istream> input_stream_ptr, std::shared_ptr<std::ostream> output_stream_ptr, std::size_t block_size, Compressor& compressor);
-        block_compressor(std::istream& input, std::ostream& output, std::size_t block_size, Compressor& compressor);
-        block_compressor(const std::string& input, const std::string& output, std::size_t block_size, Compressor& compressor);
-        ~block_compressor();
+        BlockCompressor(std::ostream& output, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container);
+        BlockCompressor(const std::string& output, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container);
+        ~BlockCompressor();
 
         //Append data to block (if size > remaining block size, block is filled and remaining is pushed into a new buffered block)
         void append_data(const char * data, std::size_t size);
 
-        //Close file descriptors, flush last block
+        //Flush last block and free buffers
         void close();
 
-        bool is_closed() const;
+        inline bool is_closed() const { return closed; }
 
-        Compressor& get_compressor() const;
+        inline std::size_t get_block_size() const { return block_size; }
+        inline Compressor& get_compressor() const { return *compressor; }
+
+        void set_block_size(std::size_t new_size);
         void set_compressor(Compressor& compressor);
 
         //Writes arbitrary data directly to stream (block is not flushed)
@@ -53,35 +59,38 @@ namespace block_compressor
 
     };
 
-    block_compressor::block_compressor(std::shared_ptr<std::istream> input_stream_ptr, std::shared_ptr<std::ostream> output_stream_ptr, std::size_t block_size, Compressor& compressor)
-    {
-        set_block_size(block_size);
-        set_compressor(compressor);
+    BlockCompressor::BlockCompressor(OutputStream output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container) : output(std::move(output_stream)), int_container(&int_container)
+    {        
+        if(!output.valid())
+            throw block_compressor_error("BlockCompressor", "()", "Invalid output stream");
 
-        block_pos.push_back(0);
+        //Allocate block buffer
+        this->block = allocate<char>(block_size);
+
+        //Allocate compressed block buffer
+        this->compressed_block_size = compressor.compression_upper_bound(block_size);
+        this->compressed_block = allocate<char>(compressed_block_size);
+
+        this->int_container->add_integer(0);
     }
 
-    block_compressor::block_compressor(std::istream& input_stream, std::ostream& output_stream, std::size_t block_size, Compressor& compressor)
-        : block_compressor( std::make_shared<std::ifstream>(input_stream),
-                            std::make_shared<std::ofstream>(output_stream),
-                            block_size,
-                            compressor
-                        ) {}
+    BlockCompressor::BlockCompressor(std::ostream& output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container)
+        : BlockCompressor(OutputStream(output_stream), block_size, compressor, int_container){}
 
-    block_compressor::block_compressor(const std::string& input_path, const std::string& output_path, std::size_t block_size, Compressor& compressor)
-        : block_compressor( std::make_shared<std::ifstream>(input_path),
-                            std::make_shared<std::ofstream>(output_path),
-                            block_size,
-                            compressor
-                        ) {}
+    BlockCompressor::BlockCompressor(const std::string& output_path, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container)
+        : BlockCompressor(OutputStream(output_path), block_size, compressor, int_container){}
 
-    block_compressor::~block_compressor()
+    BlockCompressor::~BlockCompressor()
     {
         //TODO: close + write block positions
+        close();
     }
 
-    inline void block_compressor::append_data(const char* data, std::size_t size)
+    inline void BlockCompressor::append_data(const char* data, std::size_t size)
     {
+        if(closed)
+            throw block_compressor_error("BlockCompressor", "append_data", "Attempted to append data on closed block compressor");
+
         std::size_t offset = 0;
 
         //Handle buffered data that has not been flushed yet
@@ -113,53 +122,63 @@ namespace block_compressor
             std::memcpy(block, data+offset, size - offset);
     }
 
-    inline void block_compressor::close()
+    inline void BlockCompressor::close()
     {
-        closed = true;
+        if(!closed)
+        {
+            closed = true;
 
-        compress_and_flush_block(block, block_current_size);
+            compress_and_flush_block(block, block_current_size);
 
-        //TODO: write ouf block positions
+            std::free(block);
+            std::free(compressed_block);
+
+            //TODO: write out block positions
+        }
     }
 
-    inline void block_compressor::compress_and_flush_block(const char* data, std::size_t size)
+    inline void BlockCompressor::compress_and_flush_block(const char* data, std::size_t size)
     {
         if(size == 0)
             return;
+        
+        if(closed)
+            throw block_compressor_error("BlockCompressor", "compress_and_flush_block", "Attempted to compress and flush data on closed block compressor");
 
         std::size_t compressed_size = compressor->compress_block(data, compressed_block, size, compressed_block_size);
         write_data(compressed_block, compressed_size);
 
-        block_pos.push_back(compressed_size + block_pos.back());
-    }
-    
-    inline bool block_compressor::is_closed() const
-    {
-        return closed;
+        int_container->add_integer(compressed_size + total_compressed_size);
+        total_compressed_size += compressed_size;
     }
 
-    inline Compressor& block_compressor::get_compressor() const 
+    inline void BlockCompressor::set_block_size(std::size_t new_block_size)
     {
-        return *compressor;
-    }
+        if(new_block_size > block_size)
+            block = reallocate<char>(block, block_size, new_block_size);
 
-    inline void block_compressor::set_block_size(std::size_t new_block_size)
-    {
-        block = reallocate<char>(block, block_size, new_block_size);
         block_size = new_block_size;
+        
+        set_compressor(*compressor);
     }
 
-    inline void block_compressor::set_compressor(Compressor& compressor)
+    inline void BlockCompressor::set_compressor(Compressor& new_compressor)
     {
+        compressor = &new_compressor;
+
         std::size_t old_size = compressed_block_size; 
-        compressed_block_size = compressor.compression_upper_bound(block_size);
+        compressed_block_size = compressor->compression_upper_bound(block_size);
 
-        compressed_block = reallocate<char>(compressed_block, old_size, compressed_block_size);
+        if(compressed_block_size > old_size)
+            compressed_block = reallocate<char>(compressed_block, old_size, compressed_block_size);
     }
 
-    inline void block_compressor::write_data(const char* data, std::size_t size)
+    inline void BlockCompressor::write_data(const char* data, std::size_t size)
     {
-        output_stream_ptr->write(data, static_cast<std::streamsize>(size));
+        if(closed)
+            throw block_compressor_error("BlockCompressor", "write_data", "Attempted to write data on closed block compressor");
+
+        output.stream().write(data, static_cast<std::streamsize>(size));
     }
 }
 
