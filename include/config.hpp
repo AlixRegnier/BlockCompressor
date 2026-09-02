@@ -86,7 +86,7 @@ namespace block_compressor
 
     inline void Config::sync_parameters()
     {
-        row_size = bits_to_bytes(elements_per_row * bits_per_element);
+        row_size = utils::bits_to_bytes(elements_per_row * bits_per_element);
 
         //If both targets need to be tuned
         if(!targeted_block_size == !targeted_rows_per_block)
@@ -99,7 +99,7 @@ namespace block_compressor
         }
         else
         {
-            block_size = std::max(row_size, nearest_multiple(targeted_block_size, row_size));
+            block_size = std::max(row_size, utils::nearest_multiple(targeted_block_size, row_size));
             rows_per_block = block_size / row_size;
         }
     }
@@ -142,7 +142,7 @@ namespace block_compressor
         if(targeted_block_size == 0)
             throw block_compressor_error("Config", "target_block_size", "Attempted to set the block size to 0");
 
-        this->targeted_block_size = std::max(row_size, nearest_multiple(targeted_block_size, row_size));
+        this->targeted_block_size = std::max(row_size, utils::nearest_multiple(targeted_block_size, row_size));
 
         if(sync)
             sync_parameters();

@@ -11,7 +11,7 @@
 
 #include <error.hpp>
 
-namespace block_compressor
+namespace block_compressor::utils
 {
     template<typename T>
     inline T* allocate(std::size_t new_size)
