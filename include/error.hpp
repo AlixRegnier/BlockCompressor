@@ -4,10 +4,18 @@
 #include <stdexcept>
 #include <string>
 
-#include <utils.hpp>
-
 namespace block_compressor
 {
+    std::string error_str(const std::string& class_name, const std::string& function_name, const std::string& msg)
+    {
+        return "[ERROR] " + class_name + "::" + function_name + " : " + msg;
+    }
+
+    std::string warning_str(const std::string& class_name, const std::string& function_name, const std::string& msg)
+    {
+        return "[WARNING] " + class_name + "::" + function_name + " : " + msg;
+    }
+
     class block_compressor_error : public std::runtime_error
     {
     public:

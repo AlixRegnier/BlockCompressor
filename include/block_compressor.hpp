@@ -131,8 +131,6 @@ namespace block_compressor
 
             std::free(block);
             std::free(compressed_block);
-
-            int_container->serialize("TODO: output");
         }
     }
 
