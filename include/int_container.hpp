@@ -89,7 +89,7 @@ namespace block_compressor
             throw block_compressor_error("IntContainer", "serialize", "mmap failed, OOM ?");
         }
 
-        std::memcpy(map, reinterpret_cast<char*>(&count), count_bytes); //TODO: endianess
+        std::memcpy(map, reinterpret_cast<const char*>(&count), count_bytes); //TODO: endianess
         std::size_t written_bytes = serialize(map + count_bytes);
 
         munmap(map, file_size);
@@ -107,6 +107,7 @@ namespace block_compressor
         }
 
         close(fd);
+        return written_bytes;
     }
 
     template <typename T>
@@ -117,9 +118,11 @@ namespace block_compressor
     public:
         IntContainerRaw() = default;
         virtual ~IntContainerRaw() = default;
+        using IntContainer<T>::deserialize;
+        using IntContainer<T>::serialize;
 
         virtual inline void reserve(std::size_t capacity) override { integers.reserve(capacity); }
-        
+
         virtual inline void push_back(T x) override 
         { 
             integers.push_back(x); 
@@ -127,7 +130,7 @@ namespace block_compressor
         }
 
         virtual inline std::size_t upper_bound_size() const override { return sizeof(T) * integers.size(); }
-        
+
         virtual inline void deserialize(const char* data, std::size_t size) override 
         { 
             integers.resize(size/sizeof(T));

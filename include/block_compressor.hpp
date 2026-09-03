@@ -52,7 +52,7 @@ namespace block_compressor
         inline const IntContainer<std::uint64_t>& get_int_container() const { return *int_container; }
 
         //Writes arbitrary data directly to stream (block is not flushed)
-        void write_data(const char * data, std::size_t size);
+        void write_raw_data(const char * data, std::size_t size);
     };
 
     BlockCompressor::BlockCompressor(OutputStream output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container) : output(std::move(output_stream)), int_container(&int_container)
@@ -139,13 +139,13 @@ namespace block_compressor
             throw block_compressor_error("BlockCompressor", "compress_and_flush_block", "Attempted to compress and flush data on closed block compressor");
 
         std::size_t compressed_size = compressor->compress(data, compressed_block, size, compressed_block_size);
-        write_data(compressed_block, compressed_size);
+        write_raw_data(compressed_block, compressed_size);
 
         total_compressed_size += compressed_size;
         int_container->push_back(total_compressed_size);
     }
 
-    inline void BlockCompressor::write_data(const char* data, std::size_t size)
+    inline void BlockCompressor::write_raw_data(const char* data, std::size_t size)
     {
         if(closed)
             throw block_compressor_error("BlockCompressor", "write_data", "Attempted to write data on closed block compressor");

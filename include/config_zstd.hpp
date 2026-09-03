@@ -12,8 +12,8 @@ namespace block_compressor
         std::uint64_t wlog = default_wlog;
 
     public:
-        static const std::uint64_t default_preset = 3;
-        static const std::uint64_t default_wlog = 0; //use Zstd default wlog value
+        static constexpr std::uint64_t default_preset = 3;
+        static constexpr std::uint64_t default_wlog = 0; //use Zstd default wlog value
 
         ConfigZstd() = default;
 

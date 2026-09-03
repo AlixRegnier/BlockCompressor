@@ -20,8 +20,8 @@ namespace block_compressor
 
         std::uint64_t header_size;
     public:
-        static const std::uint64_t default_block_size = 1 << 16; //64 kB
-        static const std::uint64_t default_bits_per_element = 1;
+        static constexpr std::uint64_t default_block_size = 1 << 16; //64 kB
+        static constexpr std::uint64_t default_bits_per_element = 1;
         
         Config() = default;
         explicit Config(const std::string& config_path);
