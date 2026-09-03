@@ -10,8 +10,6 @@
 #include <decompressor.hpp>
 #include <int_container.hpp>
 
-//Class allowing decompression on fly / total decompression of compressed matrices
-//Instances are used for querying matrix lines or as decompressor 
 namespace block_compressor
 {
     class BlockDecompressor
@@ -59,6 +57,7 @@ namespace block_compressor
         inline std::size_t get_block_size() const { return block_size; }
         inline std::size_t get_nb_blocks() const { return nb_blocks; }
 
+        //Return a pointer 
         const char* get_row(std::uint64_t hash, std::size_t row_size);
 
         //Decompress all blocks
@@ -155,10 +154,11 @@ namespace block_compressor
         return written_bytes;
     }
 
-    inline const char* BlockDecompressor::get_row(std::uint64_t hash, std::size_t row_size)
+    inline const char* BlockDecompressor::get_row(std::uint64_t row_idx, std::size_t row_size)
     {
-        std::size_t block_idx = hash / (block_size / row_size);
-        std::size_t row = hash % (block_size / row_size);
+        std::size_t rows_per_block = block_size / row_size;
+        std::size_t block_idx = row_idx / rows_per_block;
+        std::size_t row = row_idx % rows_per_block;
 
         decompress_block(block_idx);
         return block + row;
@@ -210,7 +210,7 @@ namespace block_compressor
         for(std::size_t i = 0; i < nb_blocks; ++i)
         {
             offset += decompress_block(i);
-            output_stream.write(block, current_block_size);
+            output_stream.write(block, static_cast<std::streamsize>(current_block_size));
         }
 
         return offset;

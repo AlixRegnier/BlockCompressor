@@ -141,8 +141,8 @@ namespace block_compressor
         std::size_t compressed_size = compressor->compress(data, compressed_block, size, compressed_block_size);
         write_data(compressed_block, compressed_size);
 
-        int_container->push_back(compressed_size + total_compressed_size);
         total_compressed_size += compressed_size;
+        int_container->push_back(total_compressed_size);
     }
 
     inline void BlockCompressor::write_data(const char* data, std::size_t size)
