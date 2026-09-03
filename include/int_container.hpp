@@ -81,6 +81,13 @@ namespace block_compressor
             throw block_compressor_error("IntContainer", "serialize", "Open syscall failed on: '" + path + "'");
 
         std::size_t file_size = count_bytes + upper_bound_size();
+
+        if (ftruncate(fd, file_size) < 0)
+        {
+            close(fd);
+            throw block_compressor_error("IntContainer", "serialize", "ftruncate failed");
+        }
+
         char* map = (char*)mmap(nullptr, file_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
         if(map == MAP_FAILED)
@@ -100,7 +107,7 @@ namespace block_compressor
             throw block_compressor_error("IntContainer", "serialize", "Serialization written more bytes than declared");
         }
 
-        if (written_bytes < file_size && ftruncate(fd, written_bytes) == -1)
+        if (written_bytes < file_size && ftruncate(fd, written_bytes) < 0)
         {
             close(fd);
             throw block_compressor_error("IntContainer", "serialize", "Could not truncate serialized file: '" + path + "'");

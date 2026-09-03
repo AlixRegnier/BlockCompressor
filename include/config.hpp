@@ -10,49 +10,58 @@ namespace block_compressor
     {
     private:
         std::uint64_t bits_per_element = default_bits_per_element;
-        std::uint64_t elements_per_row;
-        std::uint64_t rows_per_block;
-        std::uint64_t row_size;
+        std::uint64_t elements_per_row = default_elements_per_row;
+        std::uint64_t rows_per_block = default_rows_per_block;
+        std::uint64_t row_size = utils::bits_to_bytes(default_bits_per_element * default_elements_per_row);
         std::uint64_t block_size = default_block_size;
 
-        std::uint64_t targeted_rows_per_block;
+        std::uint64_t targeted_rows_per_block = 0;
         std::uint64_t targeted_block_size = default_block_size;
 
         std::uint64_t header_size;
     public:
         static constexpr std::uint64_t default_block_size = 1 << 16; //64 kB
         static constexpr std::uint64_t default_bits_per_element = 1;
+        static constexpr std::uint64_t default_elements_per_row = 8;
+        static constexpr std::uint64_t default_rows_per_block = 1;
         
         Config() = default;
         explicit Config(const std::string& config_path);
         explicit Config(const ConfigIO& config_io);
         virtual ~Config() = default;
 
-        virtual inline void import_config(const std::string& config_path) { import_config(ConfigIO(config_path)); }
+        inline void import_config(const std::string& config_path) { import_config(ConfigIO(config_path)); }
         virtual void import_config(const ConfigIO& config_io);
 
-        virtual inline void export_config(const std::string& config_path) const;
+        inline void export_config(const std::string& config_path) const;
         virtual void export_config(const std::string& config_path, ConfigIO& config_io) const;
 
-        virtual inline std::size_t get_bits_per_element() const { return bits_per_element; }
-        virtual inline std::size_t get_elements_per_row() const { return elements_per_row; }
-        virtual inline std::size_t get_rows_per_block() const { return rows_per_block; }
-        virtual inline std::size_t get_row_size() const { return row_size; }
-        virtual inline std::size_t get_block_size() const { return block_size; }
-        virtual inline std::size_t get_targeted_block_size() const { return targeted_block_size; }
-        virtual inline std::size_t get_header_size() const { return header_size; }
+        inline std::size_t get_bits_per_element() const { return bits_per_element; }
+        inline std::size_t get_elements_per_row() const { return elements_per_row; }
+        inline std::size_t get_rows_per_block() const { return rows_per_block; }
+        inline std::size_t get_row_size() const { return row_size; }
+        inline std::size_t get_block_size() const { return block_size; }
+        inline std::size_t get_targeted_block_size() const { return targeted_block_size; }
+        inline std::size_t get_header_size() const { return header_size; }
 
-        virtual void set_bits_per_element(std::size_t v, bool sync = true);
-        virtual void set_elements_per_row(std::size_t v, bool sync = true);
-        virtual void target_rows_per_block(std::size_t v, bool sync = true);
-        virtual void target_block_size(std::size_t v, bool sync = true);
+        void set_bits_per_element(std::size_t v, bool sync = true);
+        void set_elements_per_row(std::size_t v, bool sync = true);
+        void target_rows_per_block(std::size_t v, bool sync = true);
+        void target_block_size(std::size_t v, bool sync = true);
 
-        virtual inline void set_header_size(std::size_t v) { header_size = v; }
+        inline void set_header_size(std::size_t v) { header_size = v; }
 
         virtual void sync_parameters();
     };
 
-    Config::Config(const std::string& config_path){ ConfigIO c(config_path); import_config(c); }
+    Config::Config(const std::string& config_path)
+    { 
+        if(std::filesystem::exists(config_path))
+        {
+            ConfigIO c(config_path); 
+            import_config(c);
+        }
+    }
     Config::Config(const ConfigIO& config_io){ import_config(config_io); }
 
     void Config::import_config(const ConfigIO& config_io)
@@ -78,8 +87,8 @@ namespace block_compressor
     {
         config_io.set<std::uint64_t>("bits_per_element", bits_per_element);
         config_io.set<std::uint64_t>("elements_per_row", elements_per_row);
-        config_io.set<std::uint64_t>("targeted_block_size", targeted_block_size);
-        config_io.set<std::uint64_t>("rows_per_block", targeted_rows_per_block);
+        config_io.set<std::uint64_t>("block_size", block_size);
+        config_io.set<std::uint64_t>("rows_per_block", rows_per_block);
         config_io.set<std::uint64_t>("header", header_size);
         config_io.write(config_path);
     }
@@ -132,18 +141,20 @@ namespace block_compressor
             throw block_compressor_error("Config", "set_rows_per_block", "Attempted to set the number of rows per block to 0");
 
         targeted_rows_per_block = static_cast<std::uint64_t>(rows_per_block);
+        targeted_block_size = 0;
 
         if(sync)
             sync_parameters();
     }
 
-    inline void Config::target_block_size(std::size_t targeted_block_size, bool sync)
+    inline void Config::target_block_size(std::size_t block_size, bool sync)
     { 
         if(targeted_block_size == 0)
             throw block_compressor_error("Config", "target_block_size", "Attempted to set the block size to 0");
 
-        this->targeted_block_size = std::max(row_size, utils::nearest_multiple(targeted_block_size, row_size));
-
+        targeted_block_size = std::max(row_size, utils::nearest_multiple(block_size, row_size));
+        targeted_rows_per_block = 0;
+        
         if(sync)
             sync_parameters();
     }

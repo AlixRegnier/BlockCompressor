@@ -12,10 +12,14 @@ namespace block_compressor
         std::uint64_t wlog = default_wlog;
 
     public:
+        using Config::import_config;
+        using Config::export_config;
+        
         static constexpr std::uint64_t default_preset = 3;
         static constexpr std::uint64_t default_wlog = 0; //use Zstd default wlog value
 
         ConfigZstd() = default;
+
 
         explicit ConfigZstd(const std::string& config_path) : Config() { import_config(config_path); }
 
@@ -23,24 +27,12 @@ namespace block_compressor
 
         virtual ~ConfigZstd() = default;
 
-        virtual void import_config(const std::string& config_path) override
-        {
-            ConfigIO c(config_path);
-            import_config(c);
-        }
-
         virtual void import_config(const ConfigIO& config_io) override
         {
             set_preset(config_io.get<std::uint64_t>("preset", default_preset));
             set_wlog(config_io.get<std::uint64_t>("wlog", default_wlog));
 
             Config::import_config(config_io); 
-        }
-
-        virtual void export_config(const std::string& config_path) const override
-        {
-            ConfigIO config_io(config_path);
-            export_config(config_path, config_io);
         }
 
         virtual void export_config(const std::string& config_path, ConfigIO& config_io) const override

@@ -131,9 +131,19 @@ namespace block_compressor
         if (!file)
             throw block_compressor_error("ConfigIO", "write", "Could not open configuration file: '" + path + "'");
 
-        for (const auto& [key, value] : properties)
+        std::vector<std::string> sorted_keys;
+        sorted_keys.reserve(properties.size());
+
+        for (const auto& [key, _] : properties)
+            sorted_keys.push_back(key);
+
+        std::sort(sorted_keys.begin(), sorted_keys.end());
+
+        for (const auto& key : sorted_keys)
         {
-            file << key << " : ";
+            const auto& value = properties.at(key);
+
+            file << key << " = ";
 
             std::visit(
                 [&file](const auto& v)

@@ -184,7 +184,7 @@ namespace block_compressor
 
         munmap(file_map, max_size);
 
-        if(written_bytes < max_size && ftruncate(fd, written_bytes) == -1)
+        if(written_bytes < max_size && ftruncate(fd, written_bytes) < 0)
         {
             close(fd);
             throw block_compressor_error("BlockDecompressor", "decompress_all", "Could not truncate output file: '" + output_path + "'");

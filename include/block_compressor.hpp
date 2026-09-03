@@ -24,9 +24,9 @@ namespace block_compressor
 
         OutputStream output;
 
-        std::size_t block_size;
-        std::size_t block_current_size;
         std::size_t compressed_block_size;
+        std::size_t block_size;
+        std::size_t block_current_size = 0;
         std::size_t total_compressed_size = 0;
         
         bool closed = false;
@@ -55,17 +55,19 @@ namespace block_compressor
         void write_raw_data(const char * data, std::size_t size);
     };
 
-    BlockCompressor::BlockCompressor(OutputStream output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container) : output(std::move(output_stream)), int_container(&int_container)
+    BlockCompressor::BlockCompressor(OutputStream output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container) 
+        : output(std::move(output_stream)), compressor(&compressor), int_container(&int_container)
     {
         if(!output.valid())
             throw block_compressor_error("BlockCompressor", "()", "Invalid output stream");
 
         //Allocate block buffer
-        this->block = utils::allocate<char>(block_size);
+        this->block_size = block_size;
+        this->block = new char[block_size];
 
         //Allocate compressed block buffer
         this->compressed_block_size = compressor.compression_upper_bound(block_size);
-        this->compressed_block = utils::allocate<char>(compressed_block_size);
+        this->compressed_block = new char[compressed_block_size];
 
         this->int_container->push_back(0);
     }
@@ -89,7 +91,7 @@ namespace block_compressor
         std::size_t offset = 0;
 
         //Handle buffered data that has not been flushed yet
-        if(block_size != 0)
+        if(block_current_size != 0)
         {
             std::size_t block_remaining_size = block_size - block_current_size;
 
