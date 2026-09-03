@@ -27,18 +27,18 @@ namespace block_compressor
         inline std::size_t size() const { return count; }
         virtual std::size_t upper_bound_size() const = 0;
 
-        void deserialize(const std::string& path);
-        virtual void deserialize(const char* data, std::size_t size) = 0;
+        void deserialize_file(const std::string& path);
+        virtual void deserialize_buffer(const char* data, std::size_t size) = 0;
     
-        std::size_t serialize(const std::string& path, int mode) const;
-        virtual std::size_t serialize(char* data) const = 0;    
+        std::size_t serialize_file(const std::string& path, int mode = 0644) const;
+        virtual std::size_t serialize_buffer(char* data) const = 0;
 
         virtual T get(std::size_t idx) const = 0;
         inline T operator[](std::size_t idx) const { return get(idx); };
     };
 
     template <typename T>
-    void IntContainer<T>::deserialize(const std::string& path)
+    void IntContainer<T>::deserialize_file(const std::string& path)
     {
         constexpr std::size_t count_bytes = sizeof(count);
 
@@ -64,14 +64,14 @@ namespace block_compressor
         }
 
         count = *reinterpret_cast<std::uint64_t*>(*map); //TODO: endianess
-        deserialize(map+count_bytes, file_size);
+        deserialize_buffer(map+count_bytes, file_size);
 
         munmap(map, file_size);
         close(fd);
     }
 
     template <typename T>
-    std::size_t IntContainer<T>::serialize(const std::string& path, int mode) const
+    std::size_t IntContainer<T>::serialize_file(const std::string& path, int mode) const
     {
         constexpr std::size_t count_bytes = sizeof(std::uint64_t);
 
@@ -97,7 +97,7 @@ namespace block_compressor
         }
 
         std::memcpy(map, reinterpret_cast<const char*>(&count), count_bytes); //TODO: endianess
-        std::size_t written_bytes = serialize(map + count_bytes);
+        std::size_t written_bytes = serialize_buffer(map + count_bytes);
 
         munmap(map, file_size);
 
@@ -125,8 +125,6 @@ namespace block_compressor
     public:
         IntContainerRaw() = default;
         virtual ~IntContainerRaw() = default;
-        using IntContainer<T>::deserialize;
-        using IntContainer<T>::serialize;
 
         virtual inline void reserve(std::size_t capacity) override { integers.reserve(capacity); }
 
@@ -138,13 +136,13 @@ namespace block_compressor
 
         virtual inline std::size_t upper_bound_size() const override { return sizeof(T) * integers.size(); }
 
-        virtual inline void deserialize(const char* data, std::size_t size) override 
+        virtual inline void deserialize_buffer(const char* data, std::size_t size) override 
         { 
             integers.resize(size/sizeof(T));
             std::memcpy(reinterpret_cast<char*>(integers.data()), data, size); //TODO: endianess
         }
 
-        virtual std::size_t serialize(char* data) const override
+        virtual std::size_t serialize_buffer(char* data) const override
         {
             std::memcpy(data, reinterpret_cast<const char*>(integers.data()), upper_bound_size()); //TODO: endianess
             return upper_bound_size();

@@ -26,14 +26,14 @@ namespace block_compressor
         static constexpr std::uint64_t default_rows_per_block = 1;
         
         Config() = default;
-        explicit Config(const std::string& config_path);
-        explicit Config(const ConfigIO& config_io);
+        explicit Config(const std::string& config_path) { import_config_file(config_path); }
+        explicit Config(const ConfigIO& config_io) { import_config(config_io); }
         virtual ~Config() = default;
 
-        inline void import_config(const std::string& config_path) { import_config(ConfigIO(config_path)); }
+        inline void import_config_file(const std::string& config_path) { import_config(ConfigIO(config_path)); }
         virtual void import_config(const ConfigIO& config_io);
 
-        inline void export_config(const std::string& config_path) const;
+        inline void export_config_file(const std::string& config_path) const;
         virtual void export_config(const std::string& config_path, ConfigIO& config_io) const;
 
         inline std::size_t get_bits_per_element() const { return bits_per_element; }
@@ -54,16 +54,6 @@ namespace block_compressor
         virtual void sync_parameters();
     };
 
-    Config::Config(const std::string& config_path)
-    { 
-        if(std::filesystem::exists(config_path))
-        {
-            ConfigIO c(config_path); 
-            import_config(c);
-        }
-    }
-    Config::Config(const ConfigIO& config_io){ import_config(config_io); }
-
     void Config::import_config(const ConfigIO& config_io)
     {
         set_elements_per_row(config_io.get<std::uint64_t>("elements_per_row"), false);
@@ -77,7 +67,7 @@ namespace block_compressor
         sync_parameters();
     }
 
-    inline void Config::export_config(const std::string& config_path) const
+    inline void Config::export_config_file(const std::string& config_path) const
     {
         ConfigIO c;
         export_config(config_path, c);

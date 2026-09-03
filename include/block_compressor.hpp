@@ -127,8 +127,8 @@ namespace block_compressor
 
             compress_and_flush_block(block, block_current_size);
 
-            std::free(block);
-            std::free(compressed_block);
+            delete[] block;
+            delete[] compressed_block;
         }
     }
 
