@@ -21,7 +21,7 @@ namespace block_compressor
         DecompressorIdentity() = default;
         ~DecompressorIdentity() = default;
 
-        inline std::size_t decompress(const char* input, char* output, std::size_t input_size, std::size_t output_size) override
+        std::size_t decompress(const char* input, char* output, std::size_t input_size, std::size_t output_size) override
         {
             if(output_size < input_size)
                 throw block_compressor_error("DecompressorIdentity", "decompress", "Output size is not big enough"); 

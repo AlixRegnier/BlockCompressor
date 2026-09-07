@@ -34,11 +34,11 @@ namespace block_compressor
         virtual std::size_t serialize_buffer(char* data) const = 0;
 
         virtual T get(std::size_t idx) const = 0;
-        inline T operator[](std::size_t idx) const { return get(idx); };
+        T operator[](std::size_t idx) const { return get(idx); };
     };
 
     template <typename T>
-    void IntContainer<T>::deserialize_file(const std::string& path)
+    inline void IntContainer<T>::deserialize_file(const std::string& path)
     {
         constexpr std::size_t count_bytes = sizeof(count);
 
@@ -71,7 +71,7 @@ namespace block_compressor
     }
 
     template <typename T>
-    std::size_t IntContainer<T>::serialize_file(const std::string& path, int mode) const
+    inline std::size_t IntContainer<T>::serialize_file(const std::string& path, int mode) const
     {
         constexpr std::size_t count_bytes = sizeof(std::uint64_t);
 
@@ -126,17 +126,17 @@ namespace block_compressor
         IntContainerRaw() = default;
         virtual ~IntContainerRaw() = default;
 
-        virtual inline void reserve(std::size_t capacity) override { integers.reserve(capacity); }
+        virtual void reserve(std::size_t capacity) override { integers.reserve(capacity); }
 
-        virtual inline void push_back(T x) override 
+        virtual void push_back(T x) override 
         { 
             integers.push_back(x); 
             IntContainer<T>::increment_count(); 
         }
 
-        virtual inline std::size_t upper_bound_size() const override { return sizeof(T) * integers.size(); }
+        virtual std::size_t upper_bound_size() const override { return sizeof(T) * integers.size(); }
 
-        virtual inline void deserialize_buffer(const char* data, std::size_t size) override 
+        virtual void deserialize_buffer(const char* data, std::size_t size) override 
         { 
             integers.resize(size/sizeof(T));
             std::memcpy(reinterpret_cast<char*>(integers.data()), data, size); //TODO: endianess
@@ -148,7 +148,7 @@ namespace block_compressor
             return upper_bound_size();
         }
 
-        virtual inline T get(std::size_t idx) const override { return integers[idx]; }
+        virtual T get(std::size_t idx) const override { return integers[idx]; }
     };
 }
 

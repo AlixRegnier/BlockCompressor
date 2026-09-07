@@ -18,12 +18,12 @@ namespace block_compressor
         explicit InputStream(const std::string& filename)
             : _owned_stream(std::make_unique<std::ifstream>(filename)), _stream(_owned_stream.get()) { }
 
-        inline std::istream& stream()
+        std::istream& stream()
         {
             return *_stream;
         }
 
-        inline bool valid() const
+        bool valid() const
         {
             return (bool)_stream;
         }
@@ -49,7 +49,7 @@ namespace block_compressor
             return *_stream;
         }
         
-        inline bool valid() const
+        bool valid() const
         {
             return (bool)_stream;
         }

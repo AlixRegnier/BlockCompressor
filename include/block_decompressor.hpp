@@ -52,10 +52,10 @@ namespace block_compressor
         //Return current decompressed block
         const char* get_block() { return block; }
 
-        inline std::size_t get_current_block_index() const { return current_block_index; }
-        inline std::size_t get_current_block_size() const { return current_block_size; }
-        inline std::size_t get_block_size() const { return block_size; }
-        inline std::size_t get_nb_blocks() const { return nb_blocks; }
+        std::size_t get_current_block_index() const { return current_block_index; }
+        std::size_t get_current_block_size() const { return current_block_size; }
+        std::size_t get_block_size() const { return block_size; }
+        std::size_t get_nb_blocks() const { return nb_blocks; }
 
         //Return a pointer 
         const char* get_row(std::uint64_t hash, std::size_t row_size);
@@ -164,7 +164,7 @@ namespace block_compressor
         return block + row;
     }
 
-    std::size_t BlockDecompressor::decompress_all(const std::string& output_path, int mode)
+    inline std::size_t BlockDecompressor::decompress_all(const std::string& output_path, int mode)
     {
         int fd = open(output_path.c_str(), O_CREAT | O_TRUNC | O_RDWR, mode);
 
@@ -195,7 +195,7 @@ namespace block_compressor
         return written_bytes;
     }
 
-    std::size_t BlockDecompressor::decompress_all(char* output)
+    inline std::size_t BlockDecompressor::decompress_all(char* output)
     {
         std::size_t offset = 0;
         for(std::size_t i = 0; i < nb_blocks; ++i)
@@ -204,7 +204,7 @@ namespace block_compressor
         return offset;
     }
 
-    std::size_t BlockDecompressor::decompress_all(std::ostream& output_stream)
+    inline std::size_t BlockDecompressor::decompress_all(std::ostream& output_stream)
     {
         std::size_t offset = 0;
         for(std::size_t i = 0; i < nb_blocks; ++i)

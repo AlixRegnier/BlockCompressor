@@ -49,7 +49,7 @@ namespace block_compressor
         IntContainerEF() = default;
         virtual ~IntContainerEF() = default;
 
-        virtual inline void reserve(std::size_t capacity) override 
+        virtual void reserve(std::size_t capacity) override 
         {
             if(ef_loaded)
                 throw block_compressor_error("IntContainerEF", "reserve", "Elias-Fano is loaded, you must use it");
@@ -57,7 +57,7 @@ namespace block_compressor
             integers.reserve(capacity);
         }
 
-        virtual inline void push_back(T x) override 
+        virtual void push_back(T x) override 
         {
             if(ef_loaded)
                 throw block_compressor_error("IntContainerEF", "push_back", "Elias-Fano is loaded, you must use it");
@@ -66,7 +66,7 @@ namespace block_compressor
             IntContainer<T>::increment_count(); 
         }
 
-        virtual inline std::size_t upper_bound_size() const override 
+        virtual std::size_t upper_bound_size() const override 
         { 
             if(ef_loaded)
                 return ef.memory_size();
@@ -74,7 +74,7 @@ namespace block_compressor
             return sizeof(T) * integers.size();
         }
 
-        virtual inline void deserialize_buffer(const char* data, std::size_t size) override 
+        virtual void deserialize_buffer(const char* data, std::size_t size) override 
         { 
             buffer_source source(data);
             ef.load(source);
@@ -88,7 +88,7 @@ namespace block_compressor
             return sink.size();
         }
 
-        virtual inline T get(std::size_t idx) const override 
+        virtual T get(std::size_t idx) const override 
         { 
             if(ef_loaded)
                 return ef[idx]; 

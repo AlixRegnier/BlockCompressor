@@ -25,12 +25,12 @@ namespace block_compressor
             ZSTD_freeCCtx(context);
         }
 
-        inline std::size_t compress(const char* input, char* output, std::size_t input_size, std::size_t output_size) override
+        std::size_t compress(const char* input, char* output, std::size_t input_size, std::size_t output_size) override
         {
             return ZSTD_compress2(context, output, output_size, input, input_size);
         }
 
-        inline std::size_t compression_upper_bound(std::size_t size) override
+        std::size_t compression_upper_bound(std::size_t size) override
         {
             return ZSTD_compressBound(size);
         }

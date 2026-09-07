@@ -45,11 +45,11 @@ namespace block_compressor
         //Flush last block and free buffers
         void close();
 
-        inline bool is_closed() const { return closed; }
+        bool is_closed() const { return closed; }
 
-        inline std::size_t get_block_size() const { return block_size; }
-        inline const Compressor& get_compressor() const { return *compressor; }
-        inline const IntContainer<std::uint64_t>& get_int_container() const { return *int_container; }
+        std::size_t get_block_size() const { return block_size; }
+        const Compressor& get_compressor() const { return *compressor; }
+        const IntContainer<std::uint64_t>& get_int_container() const { return *int_container; }
 
         //Writes arbitrary data directly to stream (block is not flushed)
         void write_raw_data(const char * data, std::size_t size);

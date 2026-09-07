@@ -30,7 +30,7 @@ namespace block_compressor
         virtual void write(const std::string& path) const;
 
         template <class T>
-        inline const T& get(const std::string& property, const T& default_value = T{0}) const
+        const T& get(const std::string& property, const T& default_value = T{0}) const
         {
             auto it = properties.find(property);
 
@@ -41,18 +41,18 @@ namespace block_compressor
         }
 
         template <class T>
-        inline void set(const std::string& property, const T& value)
+        void set(const std::string& property, const T& value)
         {
             properties[property] = value;
         }
     };
 
-    ConfigIO::ConfigIO(const std::string& path) 
+    inline ConfigIO::ConfigIO(const std::string& path) 
     { 
         read(path);
     }
 
-    void ConfigIO::read(const std::string& path)
+    inline void ConfigIO::read(const std::string& path)
     {
         std::ifstream config_file(path);
 
@@ -124,7 +124,7 @@ namespace block_compressor
         }
     }
 
-    void ConfigIO::write(const std::string& path) const
+    inline void ConfigIO::write(const std::string& path) const
     {
         std::ofstream file(path);
 
