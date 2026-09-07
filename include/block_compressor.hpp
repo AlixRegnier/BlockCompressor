@@ -55,7 +55,7 @@ namespace block_compressor
         void write_raw_data(const char * data, std::size_t size);
     };
 
-    BlockCompressor::BlockCompressor(OutputStream output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container) 
+    inline BlockCompressor::BlockCompressor(OutputStream output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container) 
         : output(std::move(output_stream)), compressor(&compressor), int_container(&int_container)
     {
         if(!output.valid())
