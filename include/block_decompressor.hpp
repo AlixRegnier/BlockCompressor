@@ -66,7 +66,7 @@ namespace block_compressor
         std::size_t decompress_all(char* output);
     };
 
-    BlockDecompressor::BlockDecompressor(const std::string& input_path, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset)
+    inline BlockDecompressor::BlockDecompressor(const std::string& input_path, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset)
         : block_size(block_size), owned(true), int_container(&int_container)
     {
         file_descriptor = open(input_path.c_str(), O_RDONLY);
@@ -93,10 +93,10 @@ namespace block_compressor
         nb_blocks = utils::ceil_div(map_size, block_size);
     }
 
-    BlockDecompressor::BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset)
+    inline BlockDecompressor::BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset)
         : block_size(block_size), owned(false), int_container(&int_container), nb_blocks(utils::ceil_div(map_size, block_size)), map(input+offset), map_size(input_size-offset) { }
 
-    BlockDecompressor::~BlockDecompressor()
+    inline BlockDecompressor::~BlockDecompressor()
     {
         if(owned && map != nullptr)
         {

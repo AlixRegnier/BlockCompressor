@@ -72,13 +72,13 @@ namespace block_compressor
         this->int_container->push_back(0);
     }
 
-    BlockCompressor::BlockCompressor(std::ostream& output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container)
+    inline BlockCompressor::BlockCompressor(std::ostream& output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container)
         : BlockCompressor(OutputStream(output_stream), block_size, compressor, int_container){}
 
-    BlockCompressor::BlockCompressor(const std::string& output_path, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container)
+    inline BlockCompressor::BlockCompressor(const std::string& output_path, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container)
         : BlockCompressor(OutputStream(output_path), block_size, compressor, int_container){}
 
-    BlockCompressor::~BlockCompressor()
+    inline BlockCompressor::~BlockCompressor()
     {
         close();
     }
