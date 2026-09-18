@@ -44,6 +44,15 @@ namespace block_compressor
 
         virtual void set_preset(std::uint64_t preset) { this->preset = preset; }
         virtual void set_wlog(std::uint64_t wlog) { this->wlog = wlog; }
+
+        virtual std::string to_string() const override
+        {
+            std::string s = "";
+            s += "preset = " + std::to_string(preset) + "\n";
+            s += "wlog = " + std::to_string(wlog) + "\n";
+
+            return Config::to_string() + s;
+        }
     };
 }
 

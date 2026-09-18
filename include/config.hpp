@@ -3,6 +3,7 @@
 
 #include <config_io.hpp>
 #include <utils.hpp>
+#include <iostream>
 
 namespace block_compressor
 {
@@ -52,6 +53,8 @@ namespace block_compressor
         void set_header_size(std::size_t v) { header_size = v; }
 
         virtual void sync_parameters();
+        
+        virtual std::string to_string() const;
     };
 
     inline void Config::import_config(const ConfigIO& config_io)
@@ -147,6 +150,18 @@ namespace block_compressor
         
         if(sync)
             sync_parameters();
+    }
+
+    inline std::string Config::to_string() const
+    {
+        std::string s = "";
+        s += "bits_per_element = " + std::to_string(bits_per_element) + "\n"; 
+        s += "block_size = " + std::to_string(block_size) + "\n";
+        s += "elements_per_row = " + std::to_string(elements_per_row) + "\n";
+        s += "rows_per_block = " + std::to_string(rows_per_block) + "\n";
+        s += "row_size = " + std::to_string(row_size) + "\n";
+
+        return s;
     }
 }
 
