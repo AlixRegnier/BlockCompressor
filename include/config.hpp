@@ -3,7 +3,6 @@
 
 #include <config_io.hpp>
 #include <utils.hpp>
-#include <iostream>
 
 namespace block_compressor
 {
