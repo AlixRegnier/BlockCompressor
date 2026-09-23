@@ -14,7 +14,7 @@ namespace block_compressor
     class IntContainer
     {
     private:
-        std::uint64_t count;
+        std::uint64_t count = 0;
     protected:
         inline void increment_count() { ++count; };
     public:
