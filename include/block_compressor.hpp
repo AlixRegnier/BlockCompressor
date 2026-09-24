@@ -116,7 +116,10 @@ namespace block_compressor
 
         //Buffer remaining data 
         if(offset != size)
+        {
             std::memcpy(block, data+offset, size - offset);
+            block_current_size = size - offset;
+        }
     }
 
     inline void BlockCompressor::close()
