@@ -33,7 +33,7 @@ namespace block_compressor
         IntContainer<std::uint64_t>* int_container;
 
         
-        public:
+    public:
         //Copy is deleted
         BlockDecompressor(const BlockDecompressor&) = delete;
         BlockDecompressor& operator=(const BlockDecompressor&) = delete;
@@ -66,8 +66,8 @@ namespace block_compressor
         std::size_t decompress_all(char* output);
     };
 
-    inline BlockDecompressor::BlockDecompressor(const std::string& input_path, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset)
-        : block_size(block_size), owned(true), int_container(&int_container)
+    inline BlockDecompressor::BlockDecompressor(const std::string& input_path, std::size_t block_size, Decompressor& decompressor, IntContainer<std::uint64_t>& int_container, std::size_t offset)
+        : block_size(block_size), owned(true), decompressor(&decompressor), int_container(&int_container)
     {
         file_descriptor = open(input_path.c_str(), O_RDONLY);
 
@@ -94,9 +94,10 @@ namespace block_compressor
         block = new char[block_size];
     }
 
-    inline BlockDecompressor::BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset)
-        : block_size(block_size), owned(false), int_container(&int_container), nb_blocks(utils::ceil_div(map_size, block_size)), map(input+offset), map_size(input_size-offset) 
+    inline BlockDecompressor::BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, Decompressor& decompressor, IntContainer<std::uint64_t>& int_container, std::size_t offset)
+        : block_size(block_size), owned(false), decompressor(&decompressor), int_container(&int_container), map(input+offset), map_size(input_size-offset) 
     { 
+        nb_blocks(utils::ceil_div(map_size, block_size));
         block = new char[block_size];
     }
 
