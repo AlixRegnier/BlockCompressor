@@ -63,7 +63,7 @@ namespace block_compressor
             throw block_compressor_error("IntContainer", "deserialize", "mmap failed, OOM ?");
         }
 
-        count = *reinterpret_cast<std::uint64_t*>(*map); //TODO: endianess
+        count = *reinterpret_cast<const std::uint64_t*>(map); //TODO: endianess
         deserialize_buffer(map+count_bytes, file_size);
 
         munmap(const_cast<char*>(map), file_size);
