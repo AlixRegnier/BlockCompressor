@@ -13,7 +13,7 @@ namespace block_compressor
     private:
         ZSTD_DCtx* context;
     public:
-        DecompressorZstd(std::uint64_t preset = ConfigZstd::default_preset, std::uint64_t wlog = ConfigZstd::default_wlog)
+        DecompressorZstd()
         {
             context = ZSTD_createDCtx();
         }
