@@ -66,7 +66,7 @@ namespace block_compressor
         count = *reinterpret_cast<std::uint64_t*>(*map); //TODO: endianess
         deserialize_buffer(map+count_bytes, file_size);
 
-        munmap(map, file_size);
+        munmap(const_cast<char*>(map), file_size);
         close(fd);
     }
 
