@@ -42,8 +42,8 @@ namespace block_compressor
         BlockDecompressor(BlockDecompressor&&) = default;
         BlockDecompressor& operator=(BlockDecompressor&&) = default;
 
-        explicit BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset = 0);
-        explicit BlockDecompressor(const std::string& input_path, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset = 0);
+        explicit BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, Decompressor& decompressor, IntContainer<std::uint64_t>& int_container, std::size_t offset = 0);
+        explicit BlockDecompressor(const std::string& input_path, std::size_t block_size, Decompressor& decompressor, IntContainer<std::uint64_t>& int_container, std::size_t offset = 0);
         virtual ~BlockDecompressor();
 
         std::size_t decompress_block(std::size_t idx);
