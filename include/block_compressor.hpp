@@ -126,9 +126,8 @@ namespace block_compressor
     {
         if(!closed)
         {
-            closed = true;
-
             compress_and_flush_block(block, block_current_size);
+            closed = true;
 
             delete[] block;
             delete[] compressed_block;
