@@ -91,10 +91,14 @@ namespace block_compressor
         }
 
         nb_blocks = utils::ceil_div(map_size, block_size);
+        block = new char[block_size];
     }
 
     inline BlockDecompressor::BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, IntContainer<std::uint64_t>& int_container, std::size_t offset)
-        : block_size(block_size), owned(false), int_container(&int_container), nb_blocks(utils::ceil_div(map_size, block_size)), map(input+offset), map_size(input_size-offset) { }
+        : block_size(block_size), owned(false), int_container(&int_container), nb_blocks(utils::ceil_div(map_size, block_size)), map(input+offset), map_size(input_size-offset) 
+    { 
+        block = new char[block_size];
+    }
 
     inline BlockDecompressor::~BlockDecompressor()
     {
@@ -104,8 +108,12 @@ namespace block_compressor
             close(file_descriptor);
         }
 
+        if(block != nullptr)
+            delete[] block;
+
         owned = false;
         map = nullptr;
+        block = nullptr;
     }
 
     inline std::size_t BlockDecompressor::decompress_block(std::size_t idx)
