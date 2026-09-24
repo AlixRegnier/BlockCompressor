@@ -4,7 +4,6 @@
 #include <zstd.h>
 
 #include <decompressor.hpp>
-#include <config_zstd.hpp>
 
 namespace block_compressor
 {
