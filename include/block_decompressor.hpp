@@ -28,6 +28,7 @@ namespace block_compressor
         bool owned = false;
         int file_descriptor = -1;
         const char* map = nullptr; //mmapped file
+        void* __map = nullptr;
         std::size_t map_size = 0;
 
         IntContainer<std::uint64_t>* int_container;
@@ -82,30 +83,32 @@ namespace block_compressor
             throw block_compressor_error("BlockDecompressor", "()", "File is empty: '" + input_path + "'");
         }
 
-        map = (const char*)mmap(nullptr, map_size, PROT_READ, MAP_PRIVATE, file_descriptor, offset);
+        __map = mmap(nullptr, map_size, PROT_READ, MAP_PRIVATE, file_descriptor, 0);
 
-        if(map == MAP_FAILED)
+        if(__map == MAP_FAILED)
         {
             close(file_descriptor);
             throw block_compressor_error("BlockDecompressor", "()", "mmap failed, OOM ?");
         }
 
-        nb_blocks = utils::ceil_div(map_size, block_size);
+        map = static_cast<const char*>(__map) + offset;
+
+        nb_blocks = utils::ceil_div(map_size - offset, block_size);
         block = new char[block_size];
     }
 
     inline BlockDecompressor::BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, Decompressor& decompressor, IntContainer<std::uint64_t>& int_container, std::size_t offset)
         : block_size(block_size), owned(false), decompressor(&decompressor), int_container(&int_container), map(input+offset), map_size(input_size-offset) 
     { 
-        nb_blocks = utils::ceil_div(map_size, block_size);
+        nb_blocks = utils::ceil_div(input_size - offset, block_size);
         block = new char[block_size];
     }
 
     inline BlockDecompressor::~BlockDecompressor()
     {
-        if(owned && map != nullptr)
+        if(owned && __map != nullptr)
         {
-            munmap(const_cast<char*>(map), map_size);
+            munmap(__map, map_size);
             close(file_descriptor);
         }
 
@@ -113,6 +116,7 @@ namespace block_compressor
             delete[] block;
 
         owned = false;
+        __map = nullptr;
         map = nullptr;
         block = nullptr;
     }
