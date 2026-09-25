@@ -123,16 +123,16 @@ namespace block_compressor
 
     inline std::size_t BlockDecompressor::decompress_block(std::size_t idx)
     {
-        if(current_block_index == idx)
-            return current_block_size;
-
         if(idx >= nb_blocks)
             throw block_compressor_error("BlockDecompressor", "decompress_block", "Required block is out of range");
+
+        if(current_block_index == idx)
+            return current_block_size;
 
         std::uint64_t a = int_container->get(idx);
         std::uint64_t b = int_container->get(idx+1);
 
-        std::size_t written_bytes = decompressor->decompress(map, block, b-a, block_size);
+        std::size_t written_bytes = decompressor->decompress(map+a, block, b-a, block_size);
 
         //Throw exception if last block is smaller than block_size OR a given block is greater than
         if(idx+1 != nb_blocks && written_bytes < block_size || written_bytes > block_size)
@@ -146,19 +146,19 @@ namespace block_compressor
 
     inline std::size_t BlockDecompressor::decompress_block(std::size_t idx, char* output)
     {
+        if(idx >= nb_blocks)
+            throw block_compressor_error("BlockDecompressor", "decompress_block", "Required block is out of range");
+
         if(current_block_index == idx)
         {
             std::memcpy(output, block, current_block_size);
             return current_block_size;
         }
 
-        if(idx >= nb_blocks)
-            throw block_compressor_error("BlockDecompressor", "decompress_block", "Required block is out of range");
-
         std::uint64_t a = int_container->get(idx);
         std::uint64_t b = int_container->get(idx+1);
 
-        std::size_t written_bytes = decompressor->decompress(map, output, b-a, block_size);
+        std::size_t written_bytes = decompressor->decompress(map+a, output, b-a, block_size);
 
         //Throw exception if block is smaller than (without being the last block) OR a the block is greater than expected
         if(idx+1 != nb_blocks && written_bytes < block_size || written_bytes > block_size)
