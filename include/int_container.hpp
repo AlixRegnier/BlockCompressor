@@ -64,7 +64,7 @@ namespace block_compressor
         }
 
         count = *reinterpret_cast<const std::uint64_t*>(map); //TODO: endianess
-        deserialize_buffer(map+count_bytes, file_size);
+        deserialize_buffer(map+count_bytes, file_size-count_bytes);
 
         munmap(const_cast<char*>(map), file_size);
         close(fd);
@@ -97,14 +97,14 @@ namespace block_compressor
         }
 
         std::memcpy(map, reinterpret_cast<const char*>(&count), count_bytes); //TODO: endianess
-        std::size_t written_bytes = serialize_buffer(map + count_bytes);
+        std::size_t written_bytes = count_bytes + serialize_buffer(map + count_bytes);
 
         munmap(map, file_size);
 
         if(written_bytes > file_size)
         {
             close(fd);
-            throw block_compressor_error("IntContainer", "serialize", "Serialization written more bytes than declared");
+            throw block_compressor_error("IntContainer", "serialize", "Serialization written more bytes than declared maximum bound");
         }
 
         if (written_bytes < file_size && ftruncate(fd, written_bytes) < 0)
@@ -138,7 +138,9 @@ namespace block_compressor
 
         virtual void deserialize_buffer(const char* data, std::size_t size) override 
         { 
+            integers.clear();
             integers.resize(size/sizeof(T));
+
             std::memcpy(reinterpret_cast<char*>(integers.data()), data, size); //TODO: endianess
         }
 

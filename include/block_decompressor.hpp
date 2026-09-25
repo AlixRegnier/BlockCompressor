@@ -93,14 +93,14 @@ namespace block_compressor
 
         map = static_cast<const char*>(__map) + offset;
 
-        nb_blocks = utils::ceil_div(map_size - offset, block_size);
+        nb_blocks = int_container.size() - 1;
         block = new char[block_size];
     }
 
     inline BlockDecompressor::BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, Decompressor& decompressor, IntContainer<std::uint64_t>& int_container, std::size_t offset)
         : block_size(block_size), owned(false), decompressor(&decompressor), int_container(&int_container), map(input+offset), map_size(input_size-offset) 
     { 
-        nb_blocks = utils::ceil_div(input_size - offset, block_size);
+        nb_blocks = int_container.size() - 1;
         block = new char[block_size];
     }
 
